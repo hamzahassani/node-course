@@ -5,7 +5,7 @@ var app = express();
 
 const port = process.env.PORT || 3000;
 
-// var fs = require('fs');
+var fs = require("fs");
 
 // var partialsDir = __dirname + '/../views/partials';
 
@@ -24,8 +24,19 @@ const port = process.env.PORT || 3000;
 hbs.registerPartials(__dirname + "/views/partials");
 app.set("view engine", "hbs");
 
+// app.use((req, res, next) => {
+//   res.render("maintenance.hbs");
+// });
+
 app.use((req, res, next) => {
-  res.render("maintenance.hbs");
+  var now = new Date().toString();
+  var log = `${now} : ${req.method} : ${req.url}`;
+  console.log(log);
+  fs.appendFile("server.log", log + "\n", err => {
+    if (err) throw err;
+    console.log('The "data to append" was appended to file!');
+  });
+  next();
 });
 
 app.use(express.static(__dirname + "/public"));
@@ -49,6 +60,12 @@ app.get("/", (req, res) => {
 app.get("/about", (req, res) => {
   res.render("about.hbs", {
     pageTitle: "Hello there"
+  });
+});
+
+app.get("/projects", (req, res) => {
+  res.render("projects.hbs", {
+    pageTitle: "Projects"
   });
 });
 
